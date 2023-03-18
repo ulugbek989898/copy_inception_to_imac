@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+# ------------------------------------------------------- #
   nginx:
     build:
       context: .
@@ -17,7 +18,8 @@ services:
       - ./requirements/nginx/tools:/etc/nginx/ssl/
       - wp-volume:/var/www/
     restart: always
-
+# ------------------------------------------------------- #
+# ------------------------------------------------------- #
   mariadb:
     build:
       context: .
@@ -28,12 +30,13 @@ services:
         DB_PASS: ${DB_PASS}
         DB_ROOT: ${DB_ROOT}
     container_name: mariadb
-    ports:
-      - "3306:3306"
     networks:
       - inception
+    volumes:
+      - db-volume:/var/lib/mysql/
     restart: always
-
+# ------------------------------------------------------- #
+# ------------------------------------------------------- #
   wordpress:
     build:
       context: .
@@ -42,6 +45,17 @@ services:
         DB_NAME: ${DB_NAME}
         DB_USER: ${DB_USER}
         DB_PASS: ${DB_PASS}
+        # ------------------- #
+        WP_URL: ${WP_URL}
+        WP_TITLE: ${WP_TITLE}
+        WP_ADMIN: ${WP_ADMIN}
+        WP_ADMIN_PASS: ${WP_ADMIN_PASS}
+        WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+        # ------------------- #
+        WP_USER: ${WP_USER}
+        WP_USER_PASS: ${WP_USER_PASS}
+        WP_USER_EMAIL: ${WP_USER_EMAIL}
+        # ------------------- #
     container_name: wordpress
     depends_on:
       - mariadb
@@ -50,20 +64,24 @@ services:
       - inception
     volumes:
       - wp-volume:/var/www/
-
+# ------------------------------------------------------- #
+# ------------------------------------------------------- #
 volumes:
+  # ------------------- #
   wp-volume:
     driver_opts:
       o: bind
       type: none
       device: /home/${USER}/data/wordpress
-
+  # ------------------- #
+  # ------------------- #
   db-volume:
     driver_opts:
       o: bind
       type: none
       device: /home/${USER}/data/mariadb
-
+  # ------------------- #
+# ------------------------------------------------------- #
 networks:
     inception:
         driver: bridge
